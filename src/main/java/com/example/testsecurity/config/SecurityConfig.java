@@ -2,6 +2,9 @@ package com.example.testsecurity.config;
 
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
+import org.springframework.security.access.hierarchicalroles.RoleHierarchy;
+import org.springframework.security.access.hierarchicalroles.RoleHierarchyImpl;
+import org.springframework.security.config.Customizer;
 import org.springframework.security.config.annotation.web.builders.HttpSecurity;
 import org.springframework.security.config.annotation.web.configuration.EnableWebSecurity;
 import org.springframework.security.core.userdetails.User;
@@ -27,10 +30,17 @@ public class SecurityConfig {
                 .requestMatchers("/admin").hasRole("ADMIN")
                 .requestMatchers("/my/**").hasAnyRole("ADMIN", "USER")
                 .anyRequest().authenticated());
+        // form 로그인
+//        http
+//                .formLogin((auth) -> auth.loginPage("/login")
+//                        .loginProcessingUrl("/loginProc")
+//                        .permitAll());
+
+        // httpBasic 방식
         http
-                .formLogin((auth) -> auth.loginPage("/login")
-                        .loginProcessingUrl("/loginProc")
-                        .permitAll());
+                .httpBasic(Customizer.withDefaults());
+
+        // csrf
 //        http
 //                .csrf((auth)->auth.disable());
 
@@ -65,5 +75,17 @@ public class SecurityConfig {
                 .build();
 
         return new InMemoryUserDetailsManager(user1, user2);
+    }
+
+    // 계층 권한
+    @Bean
+    public RoleHierarchy roleHierarchy() {
+
+        RoleHierarchyImpl hierarchy = new RoleHierarchyImpl();
+
+        hierarchy.setHierarchy("ROLE_C > ROLE_B\n" +
+                "ROLE_B > ROLE_A");
+
+        return hierarchy;
     }
 }
