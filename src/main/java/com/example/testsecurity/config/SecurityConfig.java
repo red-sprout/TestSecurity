@@ -22,13 +22,23 @@ public class SecurityConfig {
                 .requestMatchers("/", "/login", "/join", "/joinProc").permitAll()
                 .requestMatchers("/admin").hasRole("ADMIN")
                 .requestMatchers("/my/**").hasAnyRole("ADMIN", "USER")
-                .anyRequest().authenticated())
-
+                .anyRequest().authenticated());
+        http
                 .formLogin((auth) -> auth.loginPage("/login")
                         .loginProcessingUrl("/loginProc")
-                        .permitAll())
-
-                .csrf((auth)->auth.disable());
+                        .permitAll());
+//        http
+//                .csrf((auth)->auth.disable());
+        http
+                .sessionManagement((auth) -> auth
+                        .maximumSessions(1)
+                        .maxSessionsPreventsLogin(true));
+        http
+                .sessionManagement((auth) -> auth
+                        .sessionFixation().changeSessionId());
+        http
+                .logout((auth) -> auth.logoutUrl("/logout")
+                        .logoutSuccessUrl("/"));
         return http.build();
     }
 }
